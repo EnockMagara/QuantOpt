@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MMS Finance - Portfolio Optimizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        .metric-card {
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        .metric-card.success {
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .metric-card.warning {
+            background: linear-gradient(45deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .ticker-input {
+            border-radius: 25px;
+        }
+        .btn-custom {
+            border-radius: 25px;
+            padding: 10px 30px;
+        }
+        .loading {
+            display: none;
+        }
+        .results-section {
+            display: none;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+        .ticker-tag {
+            display: inline-block;
+            background: #e9ecef;
+            padding: 5px 15px;
+            margin: 5px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .ticker-tag:hover {
+            background: #dee2e6;
+        }
+        .ticker-tag.selected {
+            background: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-chart-line me-2"></i>MMS Finance
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 mb-4">AI-Powered Portfolio Optimizer</h1>
+            <p class="lead mb-4">Optimize your investment portfolio using advanced machine learning algorithms</p>
+            <button class="btn btn-light btn-lg btn-custom" onclick="scrollToOptimizer()">
+                <i class="fas fa-rocket me-2"></i>Start Optimizing
+            </button>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <!-- Portfolio Optimizer Form -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4><i class="fas fa-cogs me-2"></i>Portfolio Optimizer</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="optimizerForm">
+                            <!-- Ticker Selection -->
+                            <div class="mb-4">
+                                <label class="form-label"><strong>Select Assets</strong></label>
+                                <div class="mb-3">
+                                    <input type="text" id="tickerInput" class="form-control ticker-input" 
+                                           placeholder="Enter ticker symbol (e.g., AAPL, MSFT, GOOGL)">
+                                    <div class="form-text">Enter ticker symbols separated by commas or click suggestions below</div>
+                                </div>
+                                
+                                <!-- Popular Tickers -->
+                                <div class="mb-3">
+                                    <h6>Popular Stocks:</h6>
+                                    <div id="stockSuggestions"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <h6>ETFs:</h6>
+                                    <div id="etfSuggestions"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <h6>Cryptocurrency:</h6>
+                                    <div id="cryptoSuggestions"></div>
+                                </div>
+                                
+                                <div id="selectedTickers" class="mb-3"></div>
+                            </div>
+
+                            <!-- Date Range -->
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label"><strong>Start Date</strong></label>
+                                    <input type="date" id="startDate" class="form-control" value="2020-01-01">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><strong>End Date</strong></label>
+                                    <input type="date" id="endDate" class="form-control" value="2024-01-01">
+                                </div>
+                            </div>
+
+                            <!-- Risk Tolerance -->
+                            <div class="mb-4">
+                                <label class="form-label"><strong>Risk Tolerance</strong></label>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="riskTolerance" id="riskLow" value="low">
+                                            <label class="form-check-label" for="riskLow">
+                                                <i class="fas fa-shield-alt text-success me-1"></i>Conservative
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="riskTolerance" id="riskMedium" value="medium" checked>
+                                            <label class="form-check-label" for="riskMedium">
+                                                <i class="fas fa-balance-scale text-warning me-1"></i>Moderate
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="riskTolerance" id="riskHigh" value="high">
+                                            <label class="form-check-label" for="riskHigh">
+                                                <i class="fas fa-fire text-danger me-1"></i>Aggressive
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Advanced Parameters -->
+                            <div class="mb-4">
+                                <h5><i class="fas fa-cogs me-2"></i>Advanced Parameters</h5>
+                                
+                                <!-- Max Position Size -->
+                                <div class="mb-3">
+                                    <label class="form-label"><strong>Maximum Position Size</strong></label>
+                                    <input type="range" class="form-range" id="maxPosition" min="0.05" max="0.8" step="0.05" value="0.3">
+                                    <div class="d-flex justify-content-between">
+                                        <small>5%</small>
+                                        <small id="maxPositionValue">30%</small>
+                                        <small>80%</small>
+                                    </div>
+                                </div>
+
+                                <!-- Risk-Free Rate -->
+                                <div class="mb-3">
+                                    <label class="form-label"><strong>Risk-Free Rate (Annual)</strong></label>
+                                    <input type="range" class="form-range" id="riskFreeRate" min="0.01" max="0.08" step="0.005" value="0.04">
+                                    <div class="d-flex justify-content-between">
+                                        <small>1%</small>
+                                        <small id="riskFreeRateValue">4.0%</small>
+                                        <small>8%</small>
+                                    </div>
+                                </div>
+
+                                <!-- Optimization Method -->
+                                <div class="mb-3">
+                                    <label class="form-label"><strong>Optimization Method</strong></label>
+                                    <select class="form-select" id="optimizationMethod">
+                                        <option value="max_sharpe">Maximum Sharpe Ratio</option>
+                                        <option value="min_volatility">Minimum Volatility</option>
+                                        <option value="max_return">Maximum Return</option>
+                                        <option value="efficient_frontier">Efficient Frontier</option>
+                                    </select>
+                                </div>
+
+                                <!-- Rebalancing Frequency -->
+                                <div class="mb-3">
+                                    <label class="form-label"><strong>Rebalancing Frequency</strong></label>
+                                    <select class="form-select" id="rebalancingFreq">
+                                        <option value="daily">Daily</option>
+                                        <option value="weekly">Weekly</option>
+                                        <option value="monthly" selected>Monthly</option>
+                                        <option value="quarterly">Quarterly</option>
+                                        <option value="annually">Annually</option>
+                                    </select>
+                                </div>
+
+                                <!-- Transaction Costs -->
+                                <div class="mb-3">
+                                    <label class="form-label"><strong>Transaction Costs (per trade)</strong></label>
+                                    <input type="range" class="form-range" id="transactionCosts" min="0" max="0.02" step="0.001" value="0.001">
+                                    <div class="d-flex justify-content-between">
+                                        <small>0%</small>
+                                        <small id="transactionCostsValue">0.1%</small>
+                                        <small>2%</small>
+                                    </div>
+                                </div>
+
+                                <!-- Minimum Weight Threshold -->
+                                <div class="mb-3">
+                                    <label class="form-label"><strong>Minimum Weight Threshold</strong></label>
+                                    <input type="range" class="form-range" id="minWeight" min="0" max="0.05" step="0.005" value="0.01">
+                                    <div class="d-flex justify-content-between">
+                                        <small>0%</small>
+                                        <small id="minWeightValue">1.0%</small>
+                                        <small>5%</small>
+                                    </div>
+                                </div>
+
+                                <!-- Lookback Period -->
+                                <div class="mb-3">
+                                    <label class="form-label"><strong>Lookback Period (days)</strong></label>
+                                    <input type="range" class="form-range" id="lookbackPeriod" min="30" max="500" step="30" value="252">
+                                    <div class="d-flex justify-content-between">
+                                        <small>30 days</small>
+                                        <small id="lookbackPeriodValue">252 days</small>
+                                        <small>500 days</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Optimize Button -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg btn-custom">
+                                    <i class="fas fa-magic me-2"></i>Optimize Portfolio
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Loading Indicator -->
+                        <div id="loading" class="loading text-center mt-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Optimizing your portfolio...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5><i class="fas fa-info-circle me-2"></i>How It Works</h5>
+                    </div>
+                    <div class="card-body">
+                        <ol>
+                            <li><strong>Select Assets:</strong> Choose stocks, ETFs, or crypto</li>
+                            <li><strong>Set Parameters:</strong> Define risk tolerance and constraints</li>
+                            <li><strong>Optimize:</strong> AI finds optimal portfolio weights</li>
+                            <li><strong>Backtest:</strong> See historical performance</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header bg-success text-white">
+                        <h5><i class="fas fa-chart-bar me-2"></i>Model Features</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Modern Portfolio Theory</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Risk-Adjusted Returns</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Position Limits</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Historical Backtesting</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="results-section mt-5">
+            <div class="row">
+                <!-- Portfolio Weights -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5><i class="fas fa-pie-chart me-2"></i>Portfolio Allocation</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="weightsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5><i class="fas fa-tachometer-alt me-2"></i>Performance Metrics</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 mb-3">
+                                    <div class="metric-card card text-center p-3">
+                                        <h6>Expected Return</h6>
+                                        <h4 id="expectedReturn">-</h4>
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="metric-card success card text-center p-3">
+                                        <h6>Volatility</h6>
+                                        <h4 id="volatility">-</h4>
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="metric-card warning card text-center p-3">
+                                        <h6>Sharpe Ratio</h6>
+                                        <h4 id="sharpeRatio">-</h4>
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="metric-card card text-center p-3">
+                                        <h6>Max Drawdown</h6>
+                                        <h4 id="maxDrawdown">-</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optimization Parameters -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5><i class="fas fa-cogs me-2"></i>Optimization Parameters Used</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row" id="optimizationParams">
+                                <!-- Parameters will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backtest Chart -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5><i class="fas fa-chart-line me-2"></i>Historical Performance</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="backtestChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backtest Button -->
+            <div class="text-center mt-4">
+                <button id="backtestBtn" class="btn btn-success btn-lg btn-custom">
+                    <i class="fas fa-history me-2"></i>Run Backtest
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <div class="container">
+            <p>&copy; 2024 MMS Finance. Powered by Machine Learning.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
