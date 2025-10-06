@@ -2,7 +2,7 @@
 
 A comprehensive machine learning project for portfolio optimization using PySpark and PyTorch, implementing Modern Portfolio Theory (MPT), Deep Reinforcement Learning, and Monte Carlo simulations.
 
-## 🚀 Features
+##  Features
 
 ### 1. Data Preprocessing
 - **Adjustments**: Handle stock splits and dividends
@@ -53,7 +53,7 @@ mms-finance/
 └── setup.py                 # Package setup
 ```
 
-## 🛠️ Installation
+## Installation
 
 1. **Clone the repository**:
 ```bash
@@ -86,7 +86,7 @@ pip install TA-Lib
 # Download from https://www.lfd.uci.edu/~gohlke/pythonlibs/#ta-lib
 ```
 
-## ⚙️ Configuration
+##  Configuration
 
 Edit `config/config.yaml` to customize:
 
@@ -116,7 +116,7 @@ models:
     transaction_costs: 0.001
 ```
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### 1. Download Data
 ```bash
@@ -143,7 +143,7 @@ python src/main.py --model-only
 python src/main.py --no-sentiment
 ```
 
-## 📊 Usage Examples
+##  Usage Examples
 
 ### Basic Portfolio Optimization
 ```python
@@ -206,7 +206,7 @@ for metric, value in metrics.items():
     print(f"{metric}: {value:.4f}")
 ```
 
-## 🔧 Advanced Features
+##  Advanced Features
 
 ### Deep Reinforcement Learning
 ```python
@@ -249,7 +249,7 @@ headlines = sentiment_analyzer.scrape_news_headlines(tickers)
 sentiment_scores = sentiment_analyzer.calculate_sentiment_scores(headlines)
 ```
 
-## 📈 Results
+##  Results
 
 The pipeline generates several output files:
 
@@ -267,7 +267,7 @@ The pipeline generates several output files:
 - **Sortino Ratio**: Downside risk-adjusted returns
 - **VaR/CVaR**: Value at Risk and Conditional VaR
 
-## 🧪 Testing
+##  Testing
 
 Run the test suite:
 
@@ -281,7 +281,7 @@ Run with coverage:
 pytest tests/ --cov=src/
 ```
 
-## 📝 Logging
+##  Logging
 
 Logs are automatically generated in the `logs/` directory:
 
@@ -289,7 +289,7 @@ Logs are automatically generated in the `logs/` directory:
 - **`preprocessing.log`**: Data preprocessing logs
 - **`models.log`**: Model training and inference logs
 
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -301,7 +301,7 @@ Logs are automatically generated in the `logs/` directory:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - **PySpark**: Distributed data processing
 - **PyTorch**: Deep learning framework
