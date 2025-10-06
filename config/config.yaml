@@ -1,0 +1,148 @@
+# MMS Finance ML Configuration
+
+# Data Configuration
+data:
+  raw_path: "data/raw"
+  processed_path: "data/processed"
+  external_path: "data/external"
+  
+  # Asset tickers
+  assets:
+    stocks: ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"]
+    etfs: ["SPY", "QQQ", "VTI"]
+    crypto: ["BTC-USD", "ETH-USD"]
+    bonds: ["GS10", "GS2"]
+  
+  # Date range
+  start_date: "2018-01-01"
+  end_date: "2025-01-01"
+  
+  # FRED API
+  fred_api_key: "92ec5b276fe498a139f602b7f90eaf94"
+
+# Preprocessing Configuration
+preprocessing:
+  # Adjustments
+  adjust_splits: true
+  adjust_dividends: true
+  
+  # Returns calculation
+  use_log_returns: true
+  
+  # Missing data handling
+  missing_data_strategy: "forward_fill"  # forward_fill, backward_fill, interpolate
+  
+  # Rolling windows
+  volatility_window: 21
+  sharpe_window: 21
+  sortino_window: 21
+
+# Feature Engineering Configuration
+features:
+  # Technical indicators
+  technical:
+    macd:
+      fast_period: 12
+      slow_period: 26
+      signal_period: 9
+    rsi:
+      period: 14
+    bollinger_bands:
+      period: 20
+      std_dev: 2
+  
+  # Rolling statistics
+  rolling:
+    windows: [5, 10, 21, 63]  # 1 week, 2 weeks, 1 month, 3 months
+    metrics: ["mean", "std", "min", "max", "skew", "kurtosis"]
+  
+  # Sentiment analysis
+  sentiment:
+    news_sources: ["yahoo", "reuters", "bloomberg"]
+    update_frequency: "daily"
+    model_name: "cardiffnlp/twitter-roberta-base-sentiment-latest"
+
+# Model Configuration
+models:
+  # Baseline MPT
+  baseline:
+    optimization_method: "max_sharpe"
+    rebalance_frequency: "monthly"
+    transaction_costs: 0.001
+  
+  # Deep RL
+  deep_rl:
+    algorithm: "PPO"  # PPO, DDPG, SAC
+    state_dim: 50
+    action_dim: 10
+    hidden_dims: [256, 128, 64]
+    learning_rate: 3e-4
+    batch_size: 64
+    buffer_size: 100000
+    episodes: 1000
+    max_steps_per_episode: 252  # 1 year of trading days
+  
+  # Monte Carlo
+  monte_carlo:
+    n_simulations: 10000
+    time_horizon: 252  # 1 year
+    confidence_levels: [0.05, 0.1, 0.9, 0.95]
+
+# Evaluation Configuration
+evaluation:
+  # Backtesting
+  backtest:
+    start_date: "2020-01-01"
+    end_date: "2024-12-31"
+    initial_capital: 100000
+    benchmark: "SPY"
+  
+  # Metrics
+  metrics:
+    risk_free_rate: 0.02
+    confidence_level: 0.95
+  
+  # Stress testing
+  stress_test:
+    scenarios:
+      - name: "2008_crash"
+        start_date: "2008-09-01"
+        end_date: "2009-03-01"
+      - name: "covid_crash"
+        start_date: "2020-02-01"
+        end_date: "2020-04-01"
+
+# MLOps Configuration
+mlops:
+  # Experiment tracking
+  tracking:
+    backend: "mlflow"  # mlflow, wandb
+    experiment_name: "mms_finance_portfolio"
+  
+  # Model registry
+  registry:
+    model_path: "models"
+    versioning: true
+  
+  # Logging
+  logging:
+    level: "INFO"
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    file: "logs/mms_finance.log"
+
+# PySpark Configuration
+spark:
+  app_name: "MMS Finance ML"
+  master: "local[*]"
+  config:
+    "spark.sql.adaptive.enabled": "true"
+    "spark.sql.adaptive.coalescePartitions.enabled": "true"
+    "spark.serializer": "org.apache.spark.serializer.KryoSerializer"
+    "spark.sql.execution.arrow.pyspark.enabled": "true"
+
+# PyTorch Configuration
+pytorch:
+  device: "auto"  # auto, cpu, cuda
+  num_workers: 4
+  pin_memory: true
+  deterministic: true
